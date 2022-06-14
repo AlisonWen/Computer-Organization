@@ -47,10 +47,10 @@ float direct_mapped(string filename, int block_size, int cache_size){
             addr = addr + Hex_to_binary[s[i]];
         }
         string index = addr.substr(32 - index_len - offset_len, index_len);
-        if(cache.find(index) != cache.end()){
-            hit_num++;
-            cache[index] = addr;
-        }
+        
+        if(cache.find(index) != cache.end()) hit_num++;
+        else cache[index] = addr;
+        
         total_num++;
     }
     
