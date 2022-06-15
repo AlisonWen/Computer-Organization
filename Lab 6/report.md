@@ -1,12 +1,12 @@
-# Computer Organization : Lab $6$ Report
+# Computer Organization : Lab 6 Report
 
 109550083 楊皓宇
 
 109550121 温柏萱
 
-## Part $1$ : Implementation Details
+## Part 1 : Implementation Details
 
-#### Direct Mapped Cache
+### Direct Mapped Cache
 
 ```cpp
 #include "direct_mapped_cache.h"
@@ -69,6 +69,76 @@ First, we need to read in the file, which consists of a series of addresses, eac
 
 Finally return $\frac{hit\ num}{total\ num}$.
 
-#### Result
+### Set Associative Cache
+```cpp
+bool sameBlock(int block_size, unsigned int address1, unsigned int address2) {
+    address1 = address1 / block_size;
+    address2 = address2 / block_size;
+    return address1 == address2;
+}
 
-![截圖 2022-06-15 上午8.38.35](/Users/alison/Downloads/Lab6_release/截圖 2022-06-15 上午8.38.35.png)
+float set_associative(string filename, int way, int block_size, int cache_size)
+{
+    int total_num = 0;
+    int hit_num = 0;
+
+    ifstream f(filename);
+    unsigned int addr;
+    int indexes = cache_size / (block_size * way);
+    vector<vector<unsigned int> > cache(indexes, vector<unsigned int>(way, 0));
+    vector<vector<int> > lastUsed(indexes, vector<int>(way, -1));
+
+    while (f >> hex >> addr) {
+        total_num++;
+
+        int index = (addr / block_size) % indexes;
+        bool hit = false;
+
+        for (int i = 0; i < way; i++) {
+            if (sameBlock(block_size, cache[index][i], addr) && lastUsed[index][i] != -1) {
+                hit_num++;
+                lastUsed[index][i] = total_num;
+                hit = true;
+                break;
+            }
+        }
+
+        if (!hit) {
+            for (int i = 0; i < way; i++) {
+                if (lastUsed[index][i] == -1) {
+                    cache[index][i] = addr;
+                    lastUsed[index][i] = total_num;
+                    hit = true;
+                    break;
+                }
+            }
+        } 
+
+        if (!hit) {
+            int min = 0;
+            for (int i = 0; i < way; i++) {
+                if (lastUsed[index][i] < lastUsed[index][min]) {
+                    min = i;
+                }
+            }
+            cache[index][min] = addr;
+            lastUsed[index][min] = total_num;
+        }
+    }
+    
+    return (float)hit_num/total_num;
+}
+```
+- Number of index: `cache_size / (block_size * way)`
+- Using `fstream` to read the file. Since addresses are seperated by new line, we can read an address as hex format number until EOF.
+- `cache` is a 2D vector that stores addresses.
+- `lastUsed` is a 2D vector that sotres last time the cache was accessed.
+- Using `sameBlock` to check whether two addresses is at the same block.
+- Cache runs in three stages:
+    - Search for cached address in the set.
+    - If not cached, find a unused place to cache.
+    - If no spare space left, relpace the least accessed recently cached address with new one.
+
+## Result
+
+![Result.png](./images/Result.png)
