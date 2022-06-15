@@ -4,13 +4,8 @@
 #include <fstream>
 #include <unordered_map>
 #include <cmath>
-
 using namespace std;
 
-int value(char c){
-    if(c - '0' >= 0 && c - '0' <= 9) return c - '0';
-    return c - 'a' + 10;
-}
 unordered_map <char, string> Hex_to_binary;
 unordered_map <string, string> cache;
 
@@ -49,9 +44,8 @@ float direct_mapped(string filename, int block_size, int cache_size){
         string index = addr.substr(32 - index_len - offset_len, index_len);
         string tag = addr.substr(0, 32 - index_len - offset_len);
 
-        if(cache.find(index) != cache.end() && cache[index] == tag){
-            hit_num++;
-        }else cache[index] = tag;
+        if(cache.find(index) != cache.end() && cache[index] == tag) hit_num++;
+        else cache[index] = tag;
         total_num++;
     }
      
