@@ -17,10 +17,8 @@ float set_associative(string filename, int way, int block_size, int cache_size)
     int total_num = 0;
     int hit_num = 0;
 
-    /*write your code HERE*/
     ifstream f(filename);
     unsigned int addr;
-
     int indexes = cache_size / (block_size * way);
     vector<vector<unsigned int> > cache(indexes, vector<unsigned int>(way, 0));
     vector<vector<int> > lastUsed(indexes, vector<int>(way, -1));
@@ -28,14 +26,14 @@ float set_associative(string filename, int way, int block_size, int cache_size)
     while (f >> hex >> addr) {
         total_num++;
 
-        int index =  (addr / block_size) % indexes;
-
+        int index = (addr / block_size) % indexes;
         bool hit = false;
+
         for (int i = 0; i < way; i++) {
             if (sameBlock(block_size, cache[index][i], addr) && lastUsed[index][i] != -1) {
-                hit = true;
                 hit_num++;
                 lastUsed[index][i] = total_num;
+                hit = true;
                 break;
             }
         }
